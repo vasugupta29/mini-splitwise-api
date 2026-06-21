@@ -1,0 +1,6 @@
+@MiniSplitwise.Api_HostAddress = http://localhost:5204
+
+GET {{MiniSplitwise.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
