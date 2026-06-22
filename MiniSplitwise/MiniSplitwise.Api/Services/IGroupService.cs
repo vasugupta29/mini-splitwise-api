@@ -10,5 +10,6 @@ namespace MiniSplitwise.Api.Services
         Task<List<GroupMemberDto>?> GetMembersAsync(int groupId, CancellationToken ct = default);
         Task<GroupMemberDto> AddMemberAsync(int groupId, AddMemberDto dto, CancellationToken ct = default);
         Task<bool> RemoveMemberAsync(int groupId, int userId, CancellationToken ct = default);
+        Task<List<GroupSummaryDto>?> GetGroupsForUserAsync(int  userId, CancellationToken ct = default);
     }
 }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MiniSplitwise.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17c9f5bbb02682973e651ad3416683cffb3329cc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07ee849483d8f7fdce265b7656e80775962783ae")]
 [assembly: System.Reflection.AssemblyProductAttribute("MiniSplitwise.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MiniSplitwise.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

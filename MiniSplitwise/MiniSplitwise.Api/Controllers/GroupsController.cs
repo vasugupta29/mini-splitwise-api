@@ -41,5 +41,31 @@ namespace MiniSplitwise.Api.Controllers
             var group = await _groupService.GetByIdAsync(id, ct);
             return group is null ? NotFound(new { message = $"Group with id {id} not found." }) : Ok(group);
         }
+
+        [HttpPost("{id:int}/members")]
+        [ProducesResponseType(typeof(GroupMemberDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> AddMember(int id, AddMemberDto dto, CancellationToken ct)
+        {
+            try
+            {
+                var member = await _groupService.AddMemberAsync(id, dto, ct);
+                return CreatedAtRoute("GetGroupById", new { id }, member);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 }

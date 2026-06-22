@@ -2,6 +2,8 @@
 using MiniSplitwise.Api.Models;
 using MiniSplitwise.Api.Repositories;
 using MiniSplitwise.Api.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace MiniSplitwise.Api.Services
 {
@@ -108,28 +110,38 @@ namespace MiniSplitwise.Api.Services
             var group = await _groupRepository.GetByIdBasicAsync(groupId, ct);
             if (group is null)
                 throw new NotFoundException($"Group with id {groupId} not found.");
-            if (!await _userRepository.ExistsAsync(dto.UserId, ct))
+
+            var user = await _userRepository.GetByIdAsync(dto.UserId, ct);
+            if (user is null)
                 throw new BadRequestException($"User with id {dto.UserId} does not exist.");
             if (await _groupRepository.IsMemberAsync(groupId, dto.UserId, ct))
-                throw new BadRequestException($"User with id {dto.UserId} is already a member of group {groupId}.");
+                throw new ConflictException($"User with id {dto.UserId} is already a member of group {groupId}.");
             var member = new GroupMember
             {
                 GroupId = groupId,
                 UserId = dto.UserId,
-                Role = GroupRole.Member
+                Role = dto.Role
             };
-            _groupRepository.AddMember(member);
-            await _groupRepository.SaveChangesAsync(ct);
-            // Fetch the member with User for the response DTO
-            var addedMember = await _groupRepository.GetMemberAsync(groupId, dto.UserId, ct);
-            if (addedMember is null)
-                throw new InvalidOperationException("Failed to retrieve the newly added member.");
+
+            try
+            {
+                _groupRepository.AddMember(member);
+                await _groupRepository.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException ex) 
+                when (ex.InnerException is SqlException { Number: 2601 or 2627})
+            {
+                throw new ConflictException($"User with id {dto.UserId} is already a member of group {groupId}.", ex);
+            }
+
+            //    Map — reuse the user we already loaded for Name, and the member we just built
+            //    for the rest. No re-fetch needed.
             return new GroupMemberDto
             {
-                UserId = addedMember.UserId,
-                Name = addedMember.User.Name,
-                Role = addedMember.Role,
-                JoinedAt = addedMember.JoinedAt
+                UserId = member.UserId,
+                Name = user.Name,               // from the use already loaded
+                Role = member.Role,
+                JoinedAt = member.JoinedAt
             };
         }
 
@@ -144,6 +156,20 @@ namespace MiniSplitwise.Api.Services
             group.Members.Remove(member);
             await _groupRepository.SaveChangesAsync(ct);
             return true;
+        }
+
+        public async Task<List<GroupSummaryDto>?> GetGroupsForUserAsync(int userId, CancellationToken ct = default)
+        {
+            if (!await _userRepository.ExistsAsync(userId, ct))
+                return null;   // controller turns this into 404
+
+            var groups = await _groupRepository.GetGroupsForUserAsync(userId, ct);
+            return groups.Select(g => new GroupSummaryDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                Description = g.Description
+            }).ToList();
         }
 
         private static GroupResponseDto MapToDto(Group group)

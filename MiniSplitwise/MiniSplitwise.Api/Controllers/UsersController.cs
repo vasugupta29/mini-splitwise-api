@@ -11,15 +11,17 @@ namespace MiniSplitwise.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IGroupService _groupService;
 
-        public UsersController(IUserService userService)
-        { 
+        public UsersController(IUserService userService, IGroupService groupService)
+        {
             _userService = userService;
+            _groupService = groupService;
         }
 
         ///<summary>Returns all users.</summary>
         [HttpGet]
-        [ProducesResponseType(typeof(List<UserResponseDto>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<UserResponseDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll(CancellationToken ct)
         {
             var users = await _userService.GetAllAsync(ct);
@@ -34,7 +36,7 @@ namespace MiniSplitwise.Api.Controllers
         {
             var user = await _userService.GetByIdAsync(id, ct);
             if (user is null)
-                return NotFound(new {message = $"User with id {id} not found." });
+                return NotFound(new { message = $"User with id {id} not found." });
 
             return Ok(user);
         }
@@ -55,6 +57,15 @@ namespace MiniSplitwise.Api.Controllers
             {
                 return Conflict(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("{id:int}/groups")]
+        [ProducesResponseType(typeof(List<GroupResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetGroups(int id, CancellationToken ct)
+        {
+            var groups = await _groupService.GetGroupsForUserAsync(id, ct);
+            return groups is null ? NotFound(new { message = $"User with id {id} not found." }) : Ok(groups);
         }
     }
 }

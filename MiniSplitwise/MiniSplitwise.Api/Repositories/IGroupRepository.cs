@@ -31,6 +31,7 @@ namespace MiniSplitwise.Api.Repositories
 
         // List the members of a group (with their User), for GET /groups/{id}/members.
         Task<List<GroupMember>> GetMembersAsync(int groupId, CancellationToken ct = default);
+        Task<List<Group>> GetGroupsForUserAsync(int userId, CancellationToken ct = default);
 
         // --- Persistence + transactions ---
 

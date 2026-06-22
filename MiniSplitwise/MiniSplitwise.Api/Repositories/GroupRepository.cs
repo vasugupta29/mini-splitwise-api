@@ -26,18 +26,22 @@ namespace MiniSplitwise.Api.Repositories
         {
             return await _context.Groups.FirstOrDefaultAsync(g => g.Id == id, ct);
         }
+
         public void Add(Group group)
         {
             _context.Groups.Add(group);
         }
+
         public async Task<bool> IsMemberAsync(int groupId, int userId, CancellationToken ct = default)
         {
             return await _context.GroupMembers.AnyAsync(m => m.GroupId == groupId && m.UserId == userId, ct);
         }
+
         public void AddMember(GroupMember member)
         {
             _context.GroupMembers.Add(member);
         }
+
         public async Task<GroupMember?> GetMemberAsync(int groupId, int userId, CancellationToken ct = default)
         {
             return await _context.GroupMembers.FirstOrDefaultAsync(m => m.GroupId == groupId && m.UserId == userId, ct);
@@ -46,6 +50,7 @@ namespace MiniSplitwise.Api.Repositories
         {
             _context.GroupMembers.Remove(member);
         }
+
         public async Task<List<GroupMember>> GetMembersAsync(int groupId, CancellationToken ct = default)
         {
             return await _context.GroupMembers
@@ -53,6 +58,14 @@ namespace MiniSplitwise.Api.Repositories
                 .Where(m => m.GroupId == groupId)
                 .Include(m => m.User)
                 .OrderBy(m => m.JoinedAt)
+                .ToListAsync(ct);
+        }
+
+        public async Task<List<Group>> GetGroupsForUserAsync(int userId, CancellationToken ct = default)
+        {
+            return await _context.Groups
+                .AsNoTracking()
+                .Where(g => g.Members.Any(m => m.UserId == userId))
                 .ToListAsync(ct);
         }
         public async Task SaveChangesAsync(CancellationToken ct = default)
