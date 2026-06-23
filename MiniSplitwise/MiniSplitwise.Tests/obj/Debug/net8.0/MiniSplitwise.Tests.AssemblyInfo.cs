@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MiniSplitwise.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17c9f5bbb02682973e651ad3416683cffb3329cc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ec11c4caacf713ecd711946e27db6462335f0690")]
 [assembly: System.Reflection.AssemblyProductAttribute("MiniSplitwise.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MiniSplitwise.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
